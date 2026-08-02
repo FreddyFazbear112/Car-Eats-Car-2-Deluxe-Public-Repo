@@ -3,34 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cover Orange: Players Pack</title>
+    <title>Cover Orange Player Pack</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #0b0c10; }
-        #flash-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background-color: #000000; 
+        }
+        #flash-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        ruffle-player {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 800px;
+            max-height: 600px;
+        }
     </style>
+    
+    <!-- STEP 1: Define the mock Kongregate API BEFORE Ruffle loads -->
+    <script>
+        // Define the namespace and function exactly as Cover Orange expects
+        window.kongregate = {
+            stats: {
+                submit: function(statName, value) {
+                    // Optional: Log to console to verify the trigger
+                    console.log('Kongregate API called:', statName, value);
+                    
+                    // Detect level completion (common stat names: "level", "stage", or just the call itself)
+                    // You can add specific logic here if the game passes specific level IDs
+                    if (statName === 'level' || statName === 'stage' || statName === 'levels_beaten') {
+                        window.parent.postMessage('levelComplete', '*');
+                    } else {
+                        // Fallback: If the game calls submit() without args or generic success
+                        window.parent.postMessage('levelComplete', '*');
+                    }
+                }
+            },
+            // Mock other common Kongregate API methods to prevent errors
+            api: {
+                setSession: function() {},
+                getGameAuthToken: function() { return "mock_token"; }
+            },
+            registration: {
+                login: function() {}
+            }
+        };
+    </script>
+
+    <!-- Loads Ruffle locally -->
+    <script src="ruffle.js"></script>
 </head>
 <body>
 
     <div id="flash-container"></div>
 
-    <!-- Inject the modern browser emulator -->
-    <script src="https://unpkg.com"></script>
-
     <script>
         window.RufflePlayer = window.RufflePlayer || {};
-        window.addEventListener("load", (event) => {
+        window.RufflePlayer.config = {
+            allowScriptAccess: true, // Required for ExternalInterface to work
+            autoplay: "on",
+            unmuteOverlay: "hidden",
+            letterbox: "on"
+        };
+
+        window.addEventListener("DOMContentLoaded", () => {
             const ruffle = window.RufflePlayer.newest();
             const player = ruffle.createPlayer();
             const container = document.getElementById("flash-container");
             container.appendChild(player);
 
             player.load({
-                // Linked to your specific file name
-                url: "CoverOrangeLP_v13k.swf", 
-                allowScriptAccess: true
+                url: "car eats car 3 - twisted dream.swf",
+                allowScriptAccess: true // Ensure this is passed in the load call as well
+            }).catch((err) => {
+                console.error("Loading error:", err);
             });
         });
     </script>
 
 </body>
-</html>
+</html>   
